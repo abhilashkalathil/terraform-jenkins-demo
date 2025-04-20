@@ -36,10 +36,25 @@ pipeline {
         }
     }
         stage('Terraform Apply') {
-            steps {
-                sh 'terraform apply -auto-approve -no-color'
+        steps {
+            withCredentials([[
+                $class: 'AmazonWebServicesCredentialsBinding',
+                credentialsId: 'aws-login-account',  // Replace with your actual credentials ID
+                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+            ]]) {
+                sh '''
+                    # Pass variables to both plan and apply
+                    terraform plan -no-color \
+                        -var="aws_access_key=${AWS_ACCESS_KEY_ID}" \
+                        -var="aws_secret_key=${AWS_SECRET_ACCESS_KEY}" \
+                        -out=tfplan
+                
+                    terraform apply -auto-approve -no-color tfplan
+                '''
             }
         }
+    }
     }
     post {
         always {
