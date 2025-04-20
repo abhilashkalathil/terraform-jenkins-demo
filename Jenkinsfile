@@ -24,8 +24,8 @@ pipeline {
             withCredentials([[
                 $class: 'AmazonWebServicesCredentialsBinding',
                 credentialsId: 'your-aws-credentials-id',  // Replace with your Jenkins credential ID
-                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                accessKeyVariable: 'aws_access_key',
+                secretKeyVariable: 'aws_secret_key'
             ]]) {
                 sh '''
                     terraform plan -no-color \
