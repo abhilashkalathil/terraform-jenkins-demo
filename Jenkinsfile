@@ -19,11 +19,22 @@ pipeline {
                 sh 'terraform init -no-color'
             }
         }
-        stage('Terraform Plan') {
-            steps {
-                sh 'terraform plan -no-color'
+    stage('Terraform Plan') {
+        steps {
+            withCredentials([[
+                $class: 'AmazonWebServicesCredentialsBinding',
+                credentialsId: 'your-aws-credentials-id',  // Replace with your Jenkins credential ID
+                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+            ]]) {
+                sh '''
+                    terraform plan -no-color \
+                        -var="aws_access_key=${AWS_ACCESS_KEY_ID}" \
+                        -var="aws_secret_key=${AWS_SECRET_ACCESS_KEY}"
+            '''
             }
         }
+    }
         stage('Terraform Apply') {
             steps {
                 sh 'terraform apply -auto-approve -no-color'
